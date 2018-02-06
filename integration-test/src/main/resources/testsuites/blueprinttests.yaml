@@ -8,6 +8,11 @@ tests:
     classes:
       - com.sequenceiq.it.cloudbreak.BlueprintTests
 
+tests:
+  - name: recipe_test
+    classes:
+      - com.sequenceiq.it.cloudbreak.RecipeTests
+
 #  - name: cluster_test
 #    parameters:
 #      provider: gcp
