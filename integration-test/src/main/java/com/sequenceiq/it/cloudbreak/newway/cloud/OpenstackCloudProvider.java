@@ -32,7 +32,7 @@ public class OpenstackCloudProvider extends CloudProviderHelper {
                 .withName(CREDNAME)
                 .withDescription(CREDDESC)
                 .withCloudPlatform(OPENSTACK_CAPITAL)
-                .withParameters(azureCredentialDetails());
+                .withParameters(openstackCredentialDetails());
     }
 
     @Override
@@ -85,7 +85,7 @@ public class OpenstackCloudProvider extends CloudProviderHelper {
         return clustername == null ? OPENSTACK_CLUSTER_DEFAULT_NAME : clustername;
     }
 
-    Map<String, Object> azureCredentialDetails() {
+    public Map<String, Object> openstackCredentialDetails() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("tenantName", getTestParameter().get("integrationtest.openstackcredential.tenantName"));
         map.put("userName", getTestParameter().get("integrationtest.openstackcredential.userName"));
