@@ -126,7 +126,7 @@ public class OpenStackResourceConnector implements ResourceConnector<Object> {
             }
             resources = check(authenticatedContext, Collections.singletonList(cloudResource));
 
-            collectResources(authenticatedContext, notifier);
+            collectResources(authenticatedContext, notifier, neutronNetworkView);
         } else {
             LOGGER.info("Heat stack already exists: {}", existingStack.getName());
             CloudResource cloudResource = new Builder().type(ResourceType.HEAT_STACK).name(existingStack.getId()).build();
@@ -136,18 +136,20 @@ public class OpenStackResourceConnector implements ResourceConnector<Object> {
         return resources;
     }
 
-    private void collectResources(AuthenticatedContext authenticatedContext, PersistenceNotifier notifier) {
-        PollTask<ResourcesStatePollerResult> task = createTask(authenticatedContext);
+    private void collectResources(AuthenticatedContext authenticatedContext, PersistenceNotifier notifier, NeutronNetworkView neutronNetworkView) {
+        if (!neutronNetworkView.isProviderNetwork()) {
+            PollTask<ResourcesStatePollerResult> task = createTask(authenticatedContext);
 
-        try {
-            ResourcesStatePollerResult call = task.call();
-            if (!task.completed(call)) {
-                call = syncPollingScheduler.schedule(task);
+            try {
+                ResourcesStatePollerResult call = task.call();
+                if (!task.completed(call)) {
+                    call = syncPollingScheduler.schedule(task);
+                }
+                List<CloudResourceStatus> results = call.getResults();
+                results.forEach(r -> notifier.notifyAllocation(r.getCloudResource(), authenticatedContext.getCloudContext()));
+            } catch (Exception e) {
+                LOGGER.error("Error in OS resource polling.", e);
             }
-            List<CloudResourceStatus> results = call.getResults();
-            results.forEach(r -> notifier.notifyAllocation(r.getCloudResource(), authenticatedContext.getCloudContext()));
-        } catch (Exception e) {
-            LOGGER.error("Error in OS resource polling.", e);
         }
     }
 
