@@ -60,4 +60,14 @@ public class Credential extends CredentialEntity {
     public static Assertion<Credential> assertThis(BiConsumer<Credential, IntegrationTestContext> check) {
         return new Assertion<>(getTestContextCredential(GherkinTest.RESULT), check);
     }
+
+    @Override
+    public Credential withName(String name) {
+        return (Credential) super.withName(name);
+    }
+
+    @Override
+    public Credential withDescription(String description) {
+        return (Credential) super.withDescription(description);
+    }
 }
